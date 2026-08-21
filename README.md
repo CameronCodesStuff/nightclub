@@ -18,6 +18,8 @@ A simple browser-based idle nightclub game made with HTML, CSS, and JavaScript.
 ## How to Run
 Open this [Link](https://cameroncodesstuff.github.io/nightclub/)
 
+or
+
 1. Download or clone the project.
 2. Open `index.html` in a web browser.
 3. Start earning cash and upgrading your nightclub.
