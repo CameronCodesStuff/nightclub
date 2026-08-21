@@ -16,7 +16,7 @@ A simple browser-based idle nightclub game made with HTML, CSS, and JavaScript.
 * $1000 test/debug button
 
 ## How to Run
-Open this (Link)[https://cameroncodesstuff.github.io/nightclub/]
+Open this [Link])https://cameroncodesstuff.github.io/nightclub/)
 
 1. Download or clone the project.
 2. Open `index.html` in a web browser.
