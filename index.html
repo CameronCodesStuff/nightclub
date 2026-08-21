@@ -1,548 +1,1220 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>🎵 Idle Nightclub</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idle Nightclub</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
 
-body{
-    background:#111;
-    color:white;
-    font-family:Arial,sans-serif;
-    text-align:center;
-    margin:0;
-    padding:20px;
+:root {
+  --pink: #ff2d75;
+  --cyan: #00e5ff;
+  --gold: #ffc947;
+  --purple: #9b5de5;
+  --bg0: #07070f;
+  --bg1: #0e0e1c;
+  --bg2: #141428;
+  --bg3: #1c1c38;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --text: #f0eef8;
+  --muted: #6e6b85;
 }
 
-h1{
-    color:#ff2d75;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg0);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-.card{
-    background:#222;
-    max-width:900px;
-    margin:15px auto;
-    padding:15px;
-    border-radius:12px;
+/* Background ambient blobs */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  width: 600px; height: 600px;
+  background: rgba(255,45,117,0.07);
+  top: -200px; left: -200px;
+}
+body::after {
+  width: 500px; height: 500px;
+  background: rgba(0,229,255,0.05);
+  bottom: -100px; right: -100px;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
-    max-width:900px;
-    margin:auto;
+#app {
+  position: relative;
+  z-index: 1;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
 }
 
-.upgradeCard{
-    background:#222;
-    padding:15px;
-    border-radius:12px;
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 4px;
+  background: linear-gradient(120deg, var(--pink), var(--purple), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.prestige-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(155,93,229,0.2), rgba(255,201,71,0.1));
+  border: 1px solid rgba(155,93,229,0.3);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-button{
-    background:#ff2d75;
-    color:white;
-    border:none;
-    padding:10px;
-    width:140px;
-    border-radius:8px;
-    cursor:pointer;
+/* ── HUD ── */
+.hud {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.hud-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  backdrop-filter: blur(10px);
+}
+.hud-card.main {
+  background: linear-gradient(135deg, rgba(255,45,117,0.12), rgba(155,93,229,0.08));
+  border-color: rgba(255,45,117,0.25);
+}
+.hud-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: var(--pink);
+  line-height: 1;
+}
+.hud-card.main .hud-val { font-size: 38px; }
+.hud-lbl {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-top: 3px;
+  font-weight: 500;
+}
+.hud-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-button:hover{
-    opacity:0.9;
+/* ── CLUB SCENE ── */
+#club-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+#club {
+  width: 100%;
+  height: 380px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: #08081a;
+  border: 1px solid rgba(255,45,117,0.3);
+  box-shadow: 0 0 60px rgba(255,45,117,0.08), inset 0 0 80px rgba(0,0,0,0.5);
 }
 
-/* CLUB */
-
-#club{
-    width:800px;
-    height:450px;
-    margin:auto;
-    position:relative;
-    overflow:hidden;
-    border-radius:20px;
-    background:#1a1a1a;
-    border:4px solid #444;
-    box-shadow:0 0 30px #ff2d75;
+/* ceiling detail */
+#club::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--pink), var(--purple), var(--cyan), var(--purple), var(--pink));
+  animation: rgbStrip 3s linear infinite;
+  z-index: 10;
+}
+@keyframes rgbStrip {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
 }
 
-.danceFloor{
-    position:absolute;
-    width:350px;
-    height:220px;
-    left:225px;
-    top:170px;
-
-    border:4px solid white;
-
-    background:
-    repeating-linear-gradient(
-        45deg,
-        #ff2d75 0px,
-        #ff2d75 20px,
-        #00ffff 20px,
-        #00ffff 40px
+/* Dance floor */
+.dfloor {
+  position: absolute;
+  left: 50%; top: 170px;
+  transform: translateX(-50%);
+  width: 360px; height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.dfloor-inner {
+  width: 100%; height: 100%;
+  background:
+    repeating-conic-gradient(
+      rgba(255,45,117,0.6) 0% 25%,
+      rgba(0,229,255,0.5) 25% 50%,
+      rgba(155,93,229,0.5) 50% 75%,
+      rgba(255,201,71,0.4) 75%
     );
-
-    animation:flashFloor .7s infinite;
+  background-size: 48px 48px;
+  animation: floorFlash 0.6s infinite;
+  border-radius: 8px;
+}
+.dfloor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(8,8,26,0.7));
+  border-radius: 8px;
+}
+@keyframes floorFlash {
+  0%,100% { filter: brightness(0.9); }
+  50% { filter: brightness(1.4); }
 }
 
-.djBooth{
-    position:absolute;
-    width:220px;
-    height:80px;
-    left:290px;
-    top:30px;
-
-    background:#000;
-
-    border:3px solid #ff2d75;
-
-    border-radius:12px;
-
-    animation:boothPulse 1.5s infinite;
+/* DJ Booth */
+.dj-booth {
+  position: absolute;
+  left: 50%; top: 18px;
+  transform: translateX(-50%);
+  width: 200px; height: 70px;
+  background: linear-gradient(180deg, #0d0d20, #0a0a18);
+  border: 2px solid rgba(255,45,117,0.5);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 0 30px rgba(255,45,117,0.2), inset 0 0 20px rgba(255,45,117,0.05);
+  animation: boothPulse 1.5s ease-in-out infinite;
+}
+.dj-booth::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 10%; right: 10%;
+  height: 10px;
+  background: linear-gradient(180deg, #0a0a18, transparent);
+}
+@keyframes boothPulse {
+  0%,100% { box-shadow: 0 0 30px rgba(255,45,117,0.2), inset 0 0 20px rgba(255,45,117,0.05); }
+  50% { box-shadow: 0 0 50px rgba(255,45,117,0.4), inset 0 0 30px rgba(255,45,117,0.1); }
+}
+.dj-icon { font-size: 32px; animation: djBounce 0.7s ease-in-out infinite; }
+@keyframes djBounce {
+  0%,100% { transform: rotate(-5deg) scale(1); }
+  50% { transform: rotate(5deg) scale(1.08); }
+}
+.dj-screen {
+  width: 60px; height: 36px;
+  background: #001a10;
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 24px;
+}
+.eq-bar {
+  width: 5px;
+  background: var(--cyan);
+  border-radius: 2px 2px 0 0;
+  animation: eqAnim 0.4s ease-in-out infinite;
+}
+.eq-bar:nth-child(2) { animation-delay: 0.1s; }
+.eq-bar:nth-child(3) { animation-delay: 0.2s; }
+.eq-bar:nth-child(4) { animation-delay: 0.05s; }
+.eq-bar:nth-child(5) { animation-delay: 0.15s; }
+@keyframes eqAnim {
+  0%,100% { height: 4px; }
+  50% { height: 20px; }
 }
 
-.dj{
-    font-size:40px;
-    line-height:80px;
-
-    animation:djDance .8s infinite;
+/* Bar */
+.bar-el {
+  position: absolute;
+  left: 16px; top: 110px;
+  width: 120px; height: 200px;
+  background: linear-gradient(180deg, #1a0a00, #0f0600);
+  border: 1px solid rgba(255,140,0,0.4);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 0 20px rgba(255,140,0,0.1);
+  animation: barGlow 2s ease-in-out infinite;
+}
+@keyframes barGlow {
+  0%,100% { box-shadow: 0 0 20px rgba(255,140,0,0.1); }
+  50% { box-shadow: 0 0 40px rgba(255,140,0,0.25); }
+}
+.bar-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: #ff8c00;
+}
+.bar-lv-badge {
+  font-size: 10px;
+  color: rgba(255,140,0,0.6);
+  font-family: 'JetBrains Mono', monospace;
+}
+.bottles {
+  display: flex;
+  gap: 4px;
+  font-size: 16px;
 }
 
-.bar{
-    position:absolute;
-    left:20px;
-    top:140px;
-
-    width:150px;
-    height:220px;
-
-    background:#663300;
-
-    border:4px solid white;
-
-    line-height:220px;
-
-    font-weight:bold;
-
-    animation:barGlow 2s infinite;
+/* VIP */
+.vip-el {
+  position: absolute;
+  right: 16px; top: 110px;
+  width: 120px; height: 200px;
+  background: linear-gradient(180deg, #150020, #0d0015);
+  border: 1px solid rgba(255,201,71,0.4);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  animation: vipGlow 2s ease-in-out infinite;
+}
+@keyframes vipGlow {
+  0%,100% { box-shadow: 0 0 20px rgba(255,201,71,0.1); }
+  50% { box-shadow: 0 0 40px rgba(255,201,71,0.25); }
+}
+.vip-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: var(--gold);
+}
+.vip-lv-badge {
+  font-size: 10px;
+  color: rgba(255,201,71,0.6);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.vip{
-    position:absolute;
-    right:20px;
-    top:140px;
-
-    width:150px;
-    height:220px;
-
-    background:#550055;
-
-    border:4px solid gold;
-
-    color:gold;
-
-    line-height:220px;
-
-    font-weight:bold;
-
-    animation:vipGlow 2s infinite;
+/* Speakers */
+.spk {
+  position: absolute;
+  top: 16px;
+  width: 44px; height: 90px;
+  background: #0a0a15;
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 8px;
+  animation: spkPulse 0.5s ease-in-out infinite;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px;
+}
+.spk-woofer {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,229,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+}
+.spk-woofer::after {
+  content: '';
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(0,229,255,0.3);
+}
+.spk-tweet {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.3);
+}
+.spk-l { left: 156px; }
+.spk-r { right: 156px; }
+@keyframes spkPulse {
+  0%,100% { box-shadow: 0 0 8px rgba(0,229,255,0.15); }
+  50% { box-shadow: 0 0 24px rgba(0,229,255,0.4); }
 }
 
-.speaker{
-    position:absolute;
-
-    width:60px;
-    height:120px;
-
-    background:#111;
-
-    border:3px solid #00ffff;
-
-    top:30px;
-
-    animation:speakerPulse .5s infinite;
+/* Extras */
+.smoke-el {
+  position: absolute;
+  left: 16px; top: 80px;
+  width: 120px; height: 26px;
+  background: rgba(100,0,180,0.15);
+  border: 1px solid rgba(155,93,229,0.3);
+  border-radius: 6px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--purple);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+.photo-el {
+  position: absolute;
+  right: 16px; top: 80px;
+  width: 120px; height: 26px;
+  background: rgba(0,180,150,0.1);
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 6px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--cyan);
+  font-weight: 500;
+  letter-spacing: 1px;
 }
 
-.leftSpeaker{
-    left:180px;
+/* Lasers */
+.laser {
+  position: absolute;
+  width: 2px;
+  top: 6px;
+  height: 380px;
+  transform-origin: top center;
+  opacity: 0.45;
+  border-radius: 1px;
+}
+.l1 { left: 220px; background: linear-gradient(180deg, var(--pink), transparent); animation: laser1 2s ease-in-out infinite; }
+.l2 { left: 390px; background: linear-gradient(180deg, var(--cyan), transparent); animation: laser2 3s ease-in-out infinite; }
+.l3 { left: 560px; background: linear-gradient(180deg, #7fff00, transparent); animation: laser3 2.4s ease-in-out infinite; }
+.l4 { left: 310px; background: linear-gradient(180deg, var(--purple), transparent); animation: laser1 1.8s ease-in-out infinite reverse; opacity: 0.3; }
+
+@keyframes laser1 { 0%,100%{transform:rotate(-45deg)} 50%{transform:rotate(45deg)} }
+@keyframes laser2 { 0%,100%{transform:rotate(35deg)} 50%{transform:rotate(-35deg)} }
+@keyframes laser3 { 0%,100%{transform:rotate(-25deg)} 50%{transform:rotate(25deg)} }
+
+/* Floating orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  animation: orbFloat linear infinite;
+  pointer-events: none;
+}
+@keyframes orbFloat {
+  0% { transform: translateY(380px) scale(0); opacity: 0; }
+  10% { opacity: 0.8; transform: translateY(320px) scale(1); }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-20px) scale(0.6); opacity: 0; }
 }
 
-.rightSpeaker{
-    right:180px;
+/* Crowd */
+#crowd {
+  position: absolute;
+  left: 50%; top: 180px;
+  transform: translateX(-50%);
+  width: 340px; height: 175px;
+  pointer-events: none;
+  z-index: 5;
 }
 
-#crowd{
-    position:absolute;
-    left:240px;
-    top:190px;
-    width:320px;
-    height:180px;
+/* Boost indicator */
+.boost-ind {
+  position: absolute;
+  bottom: 10px; right: 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  opacity: 0;
+  transition: opacity 0.3s;
+  text-shadow: 0 0 10px var(--gold);
 }
 
-.disco{
-    position:absolute;
-    width:15px;
-    height:15px;
-    border-radius:50%;
-    animation:floatLight 4s linear infinite;
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg1);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 12px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn:hover { color: var(--text); background: var(--glass); }
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(255,45,117,0.2), rgba(155,93,229,0.15));
+  color: var(--text);
+  border: 1px solid rgba(255,45,117,0.3);
 }
 
-.laser{
-    position:absolute;
-    width:4px;
-    height:450px;
-    opacity:.6;
+/* ── UPGRADE GRID ── */
+.upgrade-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.ucard {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 14px;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.ucard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--pink), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.ucard:hover { border-color: rgba(255,45,117,0.2); background: rgba(255,255,255,0.06); }
+.ucard:hover::before { opacity: 1; }
+.ucard-icon { font-size: 22px; margin-bottom: 6px; }
+.ucard-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--text);
+}
+.ucard-desc {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.ucard-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.ucard-lv {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.ucard-rate {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--cyan);
+}
+.buy-btn {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, rgba(255,45,117,0.8), rgba(155,93,229,0.8));
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.buy-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  transform: translateY(-1px);
+}
+.buy-btn:active:not(:disabled) { transform: translateY(0); }
+.buy-btn:disabled {
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  cursor: default;
+}
+.prog-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--pink), var(--purple));
+  transition: width 0.4s ease;
+}
+.lv-pill {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(255,45,117,0.15);
+  border: 1px solid rgba(255,45,117,0.25);
+  border-radius: 20px;
+  padding: 2px 7px;
+  font-size: 9px;
+  color: var(--pink);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
 }
 
-.l1{
-    background:red;
-    left:250px;
-    animation:laser1 2s infinite;
+/* ── EVENTS ── */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.ecard {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ecard-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ecard-icon { font-size: 20px; }
+.ecard-name { font-size: 13px; font-weight: 600; }
+.ecard-desc { font-size: 11px; color: var(--muted); }
+.ecard-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.ecard-cost {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--pink);
+}
+.ecard-cd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.act-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(0,229,255,0.15);
+  border: 1px solid rgba(0,229,255,0.25);
+  color: var(--cyan);
+}
+.act-btn:hover:not(:disabled) {
+  background: rgba(0,229,255,0.25);
+}
+.act-btn:disabled {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--glass-border);
+  color: var(--muted);
+  cursor: default;
+}
+.cd-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.cd-fill { height: 100%; background: var(--cyan); border-radius: 2px; transition: width 1s linear; }
+
+/* ── ACHIEVEMENTS ── */
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.ach-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.3s;
+  filter: grayscale(1) opacity(0.5);
+}
+.ach-card.done {
+  filter: none;
+  border-color: rgba(255,201,71,0.3);
+  background: linear-gradient(135deg, rgba(255,201,71,0.06), rgba(255,45,117,0.04));
+}
+.ach-icon { font-size: 20px; }
+.ach-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.ach-desc { font-size: 10px; color: var(--muted); }
+
+/* ── PRESTIGE ── */
+.prestige-panel {
+  background: linear-gradient(135deg, rgba(155,93,229,0.08), rgba(255,201,71,0.05));
+  border: 1px solid rgba(155,93,229,0.2);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+.prestige-panel h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, var(--purple), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+.prestige-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+.pstat {
+  background: var(--glass);
+  border-radius: 10px;
+  padding: 12px;
+}
+.pstat-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--gold);
+}
+.pstat-lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 2px;
+}
+.prestige-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: linear-gradient(135deg, var(--purple), var(--pink), var(--gold));
+  color: #fff;
+  margin-top: 8px;
+}
+.prestige-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(155,93,229,0.3);
+}
+.prestige-btn:disabled {
+  background: rgba(255,255,255,0.06);
+  color: var(--muted);
+  cursor: default;
+}
+.prestige-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 4px;
 }
 
-.l2{
-    background:#00ffff;
-    left:400px;
-    animation:laser2 3s infinite;
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg2);
+  border: 1px solid rgba(255,45,117,0.3);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
-.l3{
-    background:#00ff00;
-    left:550px;
-    animation:laser3 2.5s infinite;
+/* Animations for crowd */
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes sway {
+  0%,100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
 }
 
-/* ANIMATIONS */
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg0); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
 
-@keyframes flashFloor{
-    0%{filter:brightness(1);}
-    50%{filter:brightness(2);}
-    100%{filter:brightness(1);}
+@media (max-width: 640px) {
+  .upgrade-grid { grid-template-columns: repeat(2, 1fr); }
+  .ach-grid { grid-template-columns: repeat(2, 1fr); }
+  .hud { grid-template-columns: 1fr 1fr; }
+  .hud-card.main { grid-column: 1 / -1; }
 }
-
-@keyframes boothPulse{
-    0%{transform:scale(1);}
-    50%{transform:scale(1.05);}
-    100%{transform:scale(1);}
-}
-
-@keyframes djDance{
-    0%{transform:rotate(-8deg);}
-    50%{transform:rotate(8deg);}
-    100%{transform:rotate(-8deg);}
-}
-
-@keyframes speakerPulse{
-    0%{box-shadow:0 0 10px #00ffff;}
-    50%{box-shadow:0 0 30px #00ffff;}
-    100%{box-shadow:0 0 10px #00ffff;}
-}
-
-@keyframes vipGlow{
-    0%{box-shadow:0 0 10px gold;}
-    50%{box-shadow:0 0 30px gold;}
-    100%{box-shadow:0 0 10px gold;}
-}
-
-@keyframes barGlow{
-    0%{filter:brightness(1);}
-    50%{filter:brightness(1.5);}
-    100%{filter:brightness(1);}
-}
-
-@keyframes laser1{
-    0%{transform:rotate(-40deg);}
-    50%{transform:rotate(40deg);}
-    100%{transform:rotate(-40deg);}
-}
-
-@keyframes laser2{
-    0%{transform:rotate(30deg);}
-    50%{transform:rotate(-30deg);}
-    100%{transform:rotate(30deg);}
-}
-
-@keyframes laser3{
-    0%{transform:rotate(-20deg);}
-    50%{transform:rotate(20deg);}
-    100%{transform:rotate(-20deg);}
-}
-
-@keyframes floatLight{
-    from{
-        transform:translateY(350px);
-        opacity:0;
-    }
-
-    20%{
-        opacity:1;
-    }
-
-    80%{
-        opacity:1;
-    }
-
-    to{
-        transform:translateY(-100px);
-        opacity:0;
-    }
-}
-
-@keyframes bounce{
-    0%{transform:translateY(0);}
-    50%{transform:translateY(-10px);}
-    100%{transform:translateY(0);}
-}
-
 </style>
-
 </head>
 <body>
+<div id="app">
+  <header>
+    <div class="logo">Idle Nightclub</div>
+    <div class="prestige-badge">⭐ <span id="h-prestige">0</span> prestiges</div>
+  </header>
 
-<h1>🎵 Idle Nightclub</h1>
+  <div class="hud">
+    <div class="hud-card main">
+      <div class="hud-val" id="h-cash">$0</div>
+      <div class="hud-lbl">Cash</div>
+      <div class="hud-sub" id="h-total">$0 earned total</div>
+    </div>
+    <div class="hud-card">
+      <div class="hud-val" id="h-cps" style="color:var(--cyan)">$1/s</div>
+      <div class="hud-lbl">Income</div>
+    </div>
+    <div class="hud-card">
+      <div class="hud-val" id="h-crowd" style="color:var(--purple)">0</div>
+      <div class="hud-lbl">Crowd</div>
+    </div>
+    <div class="hud-card">
+      <div class="hud-val" id="h-mult" style="color:var(--gold)">×1.0</div>
+      <div class="hud-lbl">Multiplier</div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>💰 Cash: $<span id="cash">0</span></h2>
-<p>📈 Income/Sec: $<span id="income">1</span></p>
-<p>👥 Customers: <span id="customers">0</span></p>
-<p>⭐ Multiplier: x<span id="multiplier">1.0</span></p>
+  <div id="club-wrap">
+    <div id="club">
+      <div class="laser l1"></div>
+      <div class="laser l2"></div>
+      <div class="laser l3"></div>
+      <div class="laser l4"></div>
+
+      <div class="orb" style="width:10px;height:10px;background:var(--pink);left:15%;animation-duration:4s;animation-delay:0s"></div>
+      <div class="orb" style="width:8px;height:8px;background:var(--cyan);left:40%;animation-duration:5s;animation-delay:1.5s"></div>
+      <div class="orb" style="width:12px;height:12px;background:var(--gold);left:62%;animation-duration:3.5s;animation-delay:0.7s"></div>
+      <div class="orb" style="width:7px;height:7px;background:var(--purple);left:80%;animation-duration:4.5s;animation-delay:2s"></div>
+      <div class="orb" style="width:9px;height:9px;background:#7fff00;left:28%;animation-duration:6s;animation-delay:0.3s"></div>
+
+      <div class="spk spk-l">
+        <div class="spk-woofer"></div>
+        <div class="spk-tweet"></div>
+      </div>
+      <div class="spk spk-r">
+        <div class="spk-woofer"></div>
+        <div class="spk-tweet"></div>
+      </div>
+
+      <div class="dj-booth">
+        <div class="dj-screen">
+          <div class="equalizer">
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+          </div>
+        </div>
+        <div class="dj-icon" id="dj-icon">🎧</div>
+      </div>
+
+      <div class="bar-el" id="bar-el">
+        <div style="font-size:22px">🍸</div>
+        <div class="bar-label">BAR</div>
+        <div class="bottles"><span>🥃</span><span>🍾</span></div>
+        <div class="bar-lv-badge" id="bar-lv-txt">LV 0</div>
+      </div>
+
+      <div class="vip-el" id="vip-el">
+        <div style="font-size:22px">👑</div>
+        <div class="vip-label">VIP</div>
+        <div style="font-size:18px">🥂</div>
+        <div class="vip-lv-badge" id="vip-lv-txt">LV 0</div>
+      </div>
+
+      <div class="smoke-el" id="smoke-el">💨 SMOKE</div>
+      <div class="photo-el" id="photo-el">📸 PHOTO</div>
+
+      <div class="dfloor">
+        <div class="dfloor-inner"></div>
+      </div>
+
+      <div id="crowd"></div>
+      <div class="boost-ind" id="boost-ind">⚡ BOOST ACTIVE</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('upgrades',this)">Upgrades</button>
+    <button class="tab-btn" onclick="switchTab('events',this)">Events</button>
+    <button class="tab-btn" onclick="switchTab('achievements',this)">Awards</button>
+    <button class="tab-btn" onclick="switchTab('prestige',this)">Prestige</button>
+  </div>
+
+  <div id="tab-upgrades">
+    <div class="upgrade-grid" id="upgradeGrid"></div>
+  </div>
+  <div id="tab-events" style="display:none">
+    <div class="event-grid" id="eventGrid"></div>
+  </div>
+  <div id="tab-achievements" style="display:none">
+    <div class="ach-grid" id="achievGrid"></div>
+  </div>
+  <div id="tab-prestige" style="display:none">
+    <div class="prestige-panel">
+      <h2>Prestige Reset</h2>
+      <p class="prestige-desc">Wipe your club and start fresh — but keep a permanent income multiplier that grows with every prestige.</p>
+      <div class="prestige-stats">
+        <div class="pstat">
+          <div class="pstat-val" id="p-count">0</div>
+          <div class="pstat-lbl">Prestiges</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val" id="p-bonus">×1.0</div>
+          <div class="pstat-lbl">Bonus</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val" id="p-next">×1.5</div>
+          <div class="pstat-lbl">Next bonus</div>
+        </div>
+      </div>
+      <p class="prestige-desc" id="p-req-txt">Requires $1M cash to prestige</p>
+      <button class="prestige-btn" id="prestige-btn" onclick="doPrestige()">Prestige Now</button>
+    </div>
+  </div>
 </div>
 
-<div class="card">
-
-<div id="club">
-
-<div class="danceFloor"></div>
-
-<div class="speaker leftSpeaker"></div>
-<div class="speaker rightSpeaker"></div>
-
-<div class="djBooth">
-<div class="dj">😎🎧</div>
-</div>
-
-<div class="bar">🍸 BAR</div>
-
-<div class="vip">⭐ VIP</div>
-
-<div class="laser l1"></div>
-<div class="laser l2"></div>
-<div class="laser l3"></div>
-
-<div class="disco" style="left:100px;background:red;"></div>
-<div class="disco" style="left:250px;background:cyan;animation-delay:1s;"></div>
-<div class="disco" style="left:450px;background:yellow;animation-delay:2s;"></div>
-<div class="disco" style="left:650px;background:lime;animation-delay:3s;"></div>
-
-<div id="crowd"></div>
-
-</div>
-
-</div>
-
-<div class="grid">
-
-<div class="upgradeCard">
-<h2>🍸 Bar</h2>
-<p>Level: <span id="barLevel">0</span></p>
-<p>Cost: $<span id="barCost">10</span></p>
-<button onclick="upgradeBar()">Upgrade</button>
-</div>
-
-<div class="upgradeCard">
-<h2>🎧 DJ Booth</h2>
-<p>Level: <span id="djLevel">0</span></p>
-<p>Cost: $<span id="djCost">25</span></p>
-<button onclick="upgradeDJ()">Upgrade</button>
-</div>
-
-<div class="upgradeCard">
-<h2>⭐ VIP Lounge</h2>
-<p>Level: <span id="vipLevel">0</span></p>
-<p>Cost: $<span id="vipCost">100</span></p>
-<button onclick="upgradeVIP()">Upgrade</button>
-</div>
-
-<div class="upgradeCard">
-<h2>📣 Invite</h2>
-<p>Customer stays 15 sec</p>
-<button onclick="inviteCustomer()">Invite</button>
-</div>
-
-</div>
-
-<div class="card">
-<button onclick="cash+=1000;updateScreen();">
-💵 Add $1000
-</button>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
+// ── STATE ──
+let cash = 0, totalEarned = 0, prestigeCount = 0;
+let tempGuests = 0, boostMult = 1;
 
-let cash=0;
+const upgrades = {
+  bar:      { lv:0, base:10,     mult:1.50, incRate:1,   cust:1,  name:"Bar",          icon:"🍸", desc:"Drinks keep guests spending" },
+  dj:       { lv:0, base:25,     mult:1.65, incRate:2,   cust:1,  name:"DJ Booth",      icon:"🎧", desc:"Better sets, bigger crowds" },
+  vip:      { lv:0, base:100,    mult:2.00, incRate:5,   cust:2,  name:"VIP Lounge",    icon:"👑", desc:"Premium guests, premium tips" },
+  smoke:    { lv:0, base:500,    mult:2.20, incRate:12,  cust:3,  name:"Smoke Machine", icon:"💨", desc:"Sets the mood and vibe" },
+  photo:    { lv:0, base:1200,   mult:2.30, incRate:20,  cust:4,  name:"Photo Booth",   icon:"📸", desc:"Social posts bring more feet" },
+  laser:    { lv:0, base:3000,   mult:2.50, incRate:40,  cust:5,  name:"Laser Rig",     icon:"🔦", desc:"Pro light show, pure hype" },
+  sound:    { lv:0, base:8000,   mult:2.60, incRate:90,  cust:8,  name:"Pro Sound",     icon:"🔊", desc:"Bass you feel in your chest" },
+  rooftop:  { lv:0, base:25000,  mult:2.80, incRate:200, cust:15, name:"Rooftop Bar",   icon:"🌃", desc:"Double your capacity outdoors" },
+  celeb:    { lv:0, base:100000, mult:3.00, incRate:600, cust:30, name:"Celebrity DJ",  icon:"🌟", desc:"A-list night, sold-out crowd" },
+};
 
-let customers=0;
-let multiplier=1;
+const events = [
+  { name:"Invite Friends", icon:"📣", desc:"Crowd +5 for 20s",          cost:50,    cd:0, maxCd:20, tmpGuest:5,  ms:20000, mult:1,  multMs:0 },
+  { name:"Happy Hour",     icon:"🍻", desc:"2× income for 30s",          cost:200,   cd:0, maxCd:30, tmpGuest:0,  ms:0,     mult:2,  multMs:30000 },
+  { name:"Guest List",     icon:"📋", desc:"Crowd +15 for 45s",           cost:800,   cd:0, maxCd:45, tmpGuest:15, ms:45000, mult:1,  multMs:0 },
+  { name:"Mega Drop",      icon:"🎤", desc:"5× income for 15s",           cost:2000,  cd:0, maxCd:15, tmpGuest:0,  ms:0,     mult:5,  multMs:15000 },
+  { name:"Viral Night",    icon:"🔥", desc:"Crowd +50, 10× for 20s",      cost:10000, cd:0, maxCd:20, tmpGuest:50, ms:20000, mult:10, multMs:20000 },
+];
 
-let barLevel=0;
-let djLevel=0;
-let vipLevel=0;
+const achievements = [
+  { name:"First Dollar",    icon:"💵", desc:"Earn $1",            done:false, check:()=>totalEarned>=1 },
+  { name:"Open Night",      icon:"🎉", desc:"10 customers",       done:false, check:()=>baseCust()>=10 },
+  { name:"Sold Out",        icon:"🏟", desc:"50 customers",       done:false, check:()=>baseCust()>=50 },
+  { name:"Bar Star",        icon:"🍸", desc:"Bar level 5",        done:false, check:()=>upgrades.bar.lv>=5 },
+  { name:"DJ Royalty",      icon:"🎧", desc:"DJ level 5",         done:false, check:()=>upgrades.dj.lv>=5 },
+  { name:"VIP Status",      icon:"👑", desc:"VIP level 3",        done:false, check:()=>upgrades.vip.lv>=3 },
+  { name:"All Unlocked",    icon:"🔓", desc:"Every upgrade once", done:false, check:()=>Object.values(upgrades).every(u=>u.lv>0) },
+  { name:"Prestige Club",   icon:"⭐", desc:"Prestige once",      done:false, check:()=>prestigeCount>=1 },
+  { name:"Millionaire",     icon:"💰", desc:"$1M earned",         done:false, check:()=>totalEarned>=1e6 },
+  { name:"Mega Club",       icon:"🌆", desc:"$10M earned",        done:false, check:()=>totalEarned>=1e7 },
+  { name:"Headliner",       icon:"🌟", desc:"Celebrity DJ lv 3",  done:false, check:()=>upgrades.celeb.lv>=3 },
+  { name:"Rooftop King",    icon:"🌃", desc:"Rooftop lv 5",       done:false, check:()=>upgrades.rooftop.lv>=5 },
+];
 
-let barCost=10;
-let djCost=25;
-let vipCost=100;
+// ── HELPERS ──
+function upgradeCurrentCost(key) {
+  const u = upgrades[key];
+  return Math.floor(u.base * Math.pow(u.mult, u.lv));
+}
+function baseCust() {
+  return Object.values(upgrades).reduce((s,u) => s + u.lv * u.cust, 0);
+}
+function totalCust() { return baseCust() + tempGuests; }
+function incomePerSec() {
+  const base = 1 + Object.values(upgrades).reduce((s,u) => s + u.lv * u.incRate, 0);
+  const pBonus = 1 + prestigeCount * 0.5;
+  const cBonus = 1 + totalCust() * 0.04;
+  return base * pBonus * cBonus * boostMult;
+}
+function fmt(n) {
+  if(n >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
+  if(n >= 1e9)  return '$' + (n/1e9).toFixed(2) + 'B';
+  if(n >= 1e6)  return '$' + (n/1e6).toFixed(2) + 'M';
+  if(n >= 1e3)  return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + Math.floor(n);
+}
+function fmtPlain(n) { return fmt(n).slice(1); }
 
-function incomePerSecond(){
-    return 1 +
-        (barLevel*1) +
-        (djLevel*2) +
-        (vipLevel*5);
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function recalc(){
-    multiplier =
-        1 + (customers*0.10);
+// ── CROWD ──
+function updateCrowd() {
+  const n = Math.min(totalCust(), 56);
+  const emojis = ['🕺','💃','🕺','💃','🧍'];
+  let html = '';
+  for(let i = 0; i < n; i++) {
+    const x = (i % 8) * 40;
+    const y = Math.floor(i/8) * 42;
+    const spd = (0.4 + Math.random() * 0.8).toFixed(2);
+    const type = Math.random() > 0.5 ? 'bounce' : 'sway';
+    const delay = (Math.random() * 0.5).toFixed(2);
+    html += `<div style="position:absolute;left:${x}px;top:${y}px;font-size:20px;animation:${type} ${spd}s ${delay}s ease-in-out infinite">${emojis[i%emojis.length]}</div>`;
+  }
+  document.getElementById('crowd').innerHTML = html;
 }
 
-function updateCrowd(){
-
-    let html="";
-
-    const dancers=["🕺","💃"];
-
-    for(let i=0;i<customers;i++){
-
-        let x=(i%5)*55;
-        let y=Math.floor(i/5)*45;
-
-        html+=`
-        <div style="
-        position:absolute;
-        left:${x}px;
-        top:${y}px;
-        font-size:28px;
-        animation:bounce ${0.5+Math.random()}s infinite;">
-        ${dancers[Math.floor(Math.random()*2)]}
-        </div>`;
-
-        if(i>24) break;
-    }
-
-    document.getElementById("crowd").innerHTML=html;
+// ── UPGRADES ──
+function renderUpgrades() {
+  const g = document.getElementById('upgradeGrid');
+  g.innerHTML = '';
+  Object.entries(upgrades).forEach(([key, u]) => {
+    const cost = upgradeCurrentCost(key);
+    const canAfford = cash >= cost;
+    const pct = Math.min(100, (cash / cost) * 100).toFixed(1);
+    const nextInc = (u.lv + 1) * u.incRate;
+    g.innerHTML += `
+      <div class="ucard">
+        ${u.lv > 0 ? `<div class="lv-pill">LV ${u.lv}</div>` : ''}
+        <div class="ucard-icon">${u.icon}</div>
+        <div class="ucard-name">${u.name}</div>
+        <div class="ucard-desc">${u.desc}</div>
+        <div class="ucard-stats">
+          <div class="ucard-lv">+${u.cust} crowd/lv</div>
+          <div class="ucard-rate">+$${nextInc}/s</div>
+        </div>
+        <button class="buy-btn" onclick="buyUpgrade('${key}')" ${canAfford ? '' : 'disabled'}>${fmt(cost)}</button>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>`;
+  });
 }
 
-function updateScreen(){
+function buyUpgrade(key) {
+  const cost = upgradeCurrentCost(key);
+  if(cash < cost) return;
+  cash -= cost;
+  upgrades[key].lv++;
+  if(key === 'smoke') document.getElementById('smoke-el').style.display = 'flex';
+  if(key === 'photo') document.getElementById('photo-el').style.display = 'flex';
+  showToast(`${upgrades[key].icon} ${upgrades[key].name} upgraded to level ${upgrades[key].lv}`);
+  updateCrowd();
+  renderUpgrades();
+  updateSceneLabels();
+}
 
-    document.getElementById("cash").innerText=Math.floor(cash);
-    document.getElementById("income").innerText=Math.floor(incomePerSecond()*multiplier);
-    document.getElementById("customers").innerText=customers;
-    document.getElementById("multiplier").innerText=multiplier.toFixed(1);
+// ── EVENTS ──
+function renderEvents() {
+  const g = document.getElementById('eventGrid');
+  g.innerHTML = '';
+  events.forEach((ev, i) => {
+    const canAfford = cash >= ev.cost;
+    const onCd = ev.cd > 0;
+    const canActivate = canAfford && !onCd;
+    const cdPct = onCd ? ((ev.maxCd - ev.cd) / ev.maxCd * 100).toFixed(1) : 100;
+    g.innerHTML += `
+      <div class="ecard">
+        <div class="ecard-head">
+          <div class="ecard-icon">${ev.icon}</div>
+          <div class="ecard-name">${ev.name}</div>
+        </div>
+        <div class="ecard-desc">${ev.desc}</div>
+        <div class="ecard-bottom">
+          <div>
+            <div class="ecard-cost">${fmt(ev.cost)}</div>
+            ${onCd ? `<div class="ecard-cd">CD: ${ev.cd}s</div>` : ''}
+          </div>
+          <button class="act-btn" onclick="fireEvent(${i})" ${canActivate ? '' : 'disabled'}>
+            ${onCd ? 'Cooling…' : canAfford ? 'Activate' : 'Need ' + fmt(ev.cost)}
+          </button>
+        </div>
+        ${onCd ? `<div class="cd-bar"><div class="cd-fill" style="width:${cdPct}%"></div></div>` : ''}
+      </div>`;
+  });
+}
 
-    document.getElementById("barLevel").innerText=barLevel;
-    document.getElementById("djLevel").innerText=djLevel;
-    document.getElementById("vipLevel").innerText=vipLevel;
-
-    document.getElementById("barCost").innerText=barCost;
-    document.getElementById("djCost").innerText=djCost;
-    document.getElementById("vipCost").innerText=vipCost;
-
+function fireEvent(i) {
+  const ev = events[i];
+  if(cash < ev.cost || ev.cd > 0) return;
+  cash -= ev.cost;
+  ev.cd = ev.maxCd;
+  if(ev.tmpGuest > 0) {
+    tempGuests += ev.tmpGuest;
     updateCrowd();
+    setTimeout(() => { tempGuests = Math.max(0, tempGuests - ev.tmpGuest); updateCrowd(); }, ev.ms);
+  }
+  if(ev.mult > 1) {
+    boostMult *= ev.mult;
+    document.getElementById('boost-ind').style.opacity = 1;
+    setTimeout(() => {
+      boostMult /= ev.mult;
+      if(boostMult <= 1.001) { boostMult = 1; document.getElementById('boost-ind').style.opacity = 0; }
+    }, ev.multMs);
+  }
+  showToast(`${ev.icon} ${ev.name} activated!`);
+  renderEvents();
 }
 
-function upgradeBar(){
+// ── ACHIEVEMENTS ──
+function renderAchievements() {
+  const g = document.getElementById('achievGrid');
+  g.innerHTML = '';
+  achievements.forEach(a => {
+    g.innerHTML += `
+      <div class="ach-card ${a.done ? 'done' : ''}">
+        <div class="ach-icon">${a.done ? a.icon : '🔒'}</div>
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+      </div>`;
+  });
+}
 
-    if(cash>=barCost){
+// ── PRESTIGE ──
+function renderPrestige() {
+  const req = Math.floor(1e6 * Math.pow(3, prestigeCount));
+  const canP = cash >= req;
+  document.getElementById('p-count').textContent = prestigeCount;
+  document.getElementById('p-bonus').textContent = '×' + (1 + prestigeCount * 0.5).toFixed(1);
+  document.getElementById('p-next').textContent = '×' + (1 + (prestigeCount+1) * 0.5).toFixed(1);
+  document.getElementById('p-req-txt').textContent = `Requires ${fmt(req)} cash — you have ${fmt(cash)}`;
+  document.getElementById('prestige-btn').disabled = !canP;
+}
 
-        cash-=barCost;
-        barLevel++;
-        customers++;
+function doPrestige() {
+  const req = Math.floor(1e6 * Math.pow(3, prestigeCount));
+  if(cash < req) return;
+  prestigeCount++;
+  cash = 0; totalEarned = 0; tempGuests = 0; boostMult = 1;
+  Object.values(upgrades).forEach(u => u.lv = 0);
+  events.forEach(ev => ev.cd = 0);
+  document.getElementById('smoke-el').style.display = 'none';
+  document.getElementById('photo-el').style.display = 'none';
+  document.getElementById('boost-ind').style.opacity = 0;
+  showToast(`⭐ Prestige ${prestigeCount}! Bonus now ×${(1+prestigeCount*0.5).toFixed(1)}`);
+  updateCrowd();
+  renderAll();
+}
 
-        barCost=
-            Math.floor(
-                10*Math.pow(1.5,barLevel)
-            );
+// ── SCENE LABELS ──
+function updateSceneLabels() {
+  document.getElementById('bar-lv-txt').textContent = 'LV ' + upgrades.bar.lv;
+  document.getElementById('vip-lv-txt').textContent = 'LV ' + upgrades.vip.lv;
+  document.getElementById('h-prestige').textContent = prestigeCount;
+}
 
-        recalc();
-        updateScreen();
+// ── TABS ──
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['upgrades','events','achievements','prestige'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  if(name === 'events') renderEvents();
+  if(name === 'achievements') renderAchievements();
+  if(name === 'prestige') renderPrestige();
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  renderUpgrades();
+  renderEvents();
+  renderAchievements();
+  renderPrestige();
+  updateSceneLabels();
+}
+renderAll();
+updateCrowd();
+
+// ── TICK ──
+setInterval(() => {
+  const earned = incomePerSec();
+  cash += earned;
+  totalEarned += earned;
+
+  // cooldowns
+  events.forEach(ev => { if(ev.cd > 0) ev.cd = Math.max(0, ev.cd - 1); });
+
+  // achievements
+  achievements.forEach(a => {
+    if(!a.done && a.check()) {
+      a.done = true;
+      showToast('🏆 Achievement: ' + a.name + '!');
     }
-}
+  });
 
-function upgradeDJ(){
+  // HUD
+  document.getElementById('h-cash').textContent = fmt(cash);
+  document.getElementById('h-total').textContent = fmt(totalEarned) + ' earned total';
+  document.getElementById('h-cps').textContent = fmt(incomePerSec()) + '/s';
+  document.getElementById('h-crowd').textContent = totalCust();
+  const totalMult = (1 + prestigeCount * 0.5) * (1 + totalCust() * 0.04) * boostMult;
+  document.getElementById('h-mult').textContent = '×' + totalMult.toFixed(1);
 
-    if(cash>=djCost){
+  // refresh active tab
+  const active = document.querySelector('.tab-btn.active').textContent.toLowerCase().trim();
+  if(active === 'upgrades') renderUpgrades();
+  else if(active === 'events') renderEvents();
+  else if(active === 'achievements') renderAchievements();
+  else if(active === 'prestige') renderPrestige();
 
-        cash-=djCost;
-        djLevel++;
-        customers++;
-
-        djCost=
-            Math.floor(
-                25*Math.pow(1.65,djLevel)
-            );
-
-        recalc();
-        updateScreen();
-    }
-}
-
-function upgradeVIP(){
-
-    if(cash>=vipCost){
-
-        cash-=vipCost;
-        vipLevel++;
-        customers++;
-
-        vipCost=
-            Math.floor(
-                100*Math.pow(2,vipLevel)
-            );
-
-        recalc();
-        updateScreen();
-    }
-}
-
-function inviteCustomer(){
-
-    customers++;
-
-    recalc();
-    updateScreen();
-
-    setTimeout(()=>{
-
-        customers--;
-
-        if(customers<0){
-            customers=0;
-        }
-
-        recalc();
-        updateScreen();
-
-    },15000);
-
-}
-
-setInterval(()=>{
-
-    cash+=
-        incomePerSecond()
-        *multiplier;
-
-    updateScreen();
-
-},1000);
-
-updateScreen();
-
+  updateSceneLabels();
+}, 1000);
 </script>
-
 </body>
 </html>
